@@ -1,0 +1,12 @@
+com\example\springstarbucksapi\repository\StarbucksCardRepository.class
+com\example\springstarbucksapi\model\StarbucksCard.class
+com\example\springstarbucksapi\rest\StarbucksCardController$Message.class
+com\example\springstarbucksapi\rest\StarbucksOrderController.class
+com\example\springstarbucksapi\model\StarbucksOrder.class
+com\example\springstarbucksapi\rest\StarbucksOrderController$Message.class
+com\example\springstarbucksapi\service\StarbucksService.class
+com\example\springstarbucksapi\SpringStarbucksApiApplication.class
+com\example\springstarbucksapi\rest\PingController$Ping.class
+com\example\springstarbucksapi\repository\StarbucksOrderRepository.class
+com\example\springstarbucksapi\rest\StarbucksCardController.class
+com\example\springstarbucksapi\rest\PingController.class
