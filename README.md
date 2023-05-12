@@ -35,4 +35,8 @@ inside starbucks api fic the 10 times order bug, not ine memory
 
 5. Changed stateful session to be stateless in StarbucksServices by removing HashMap. Before the deployment i made sure my api is stateless. (does not store any data in itself, like arraylists or hashmaps), and stores all the data in the database and also in an event queue (RabbitMQ)
 
-6.Next steps: Need to create kong ingress which load balances  (check lab 8 to continue)
+6.created kong ingress which load balances 
+
+5/11/2023
+
+7. next to do: make sure to mark client ip and in cashier i have to do some wxtra work to make the backend healthy.
