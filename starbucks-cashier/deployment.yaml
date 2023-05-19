@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: starbucks-cashier-deployment
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      name: starbucks-cashier
+  replicas: 4 # tells deployment to run 3 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        name: starbucks-cashier
+    spec:
+      containers:
+        - name: starbucks-cashier
+          image: jonathanborda/starbucks-cashier:v1.0
+          imagePullPolicy: Always
+          env:
+            - name: MYSQL_HOST
+              # Private Cloud IP
+              value: 10.13.48.3
+            - name: MYSQL_USER
+              value: "admin"
+            - name: MYSQL_PASSWORD
+              value: "cmpe172"
+            - name: HMAC_KEY
+              value: "kwRg54x2Go9iEdl49jFENRM12Mp711QI"
+          ports:
+            - containerPort: 9090

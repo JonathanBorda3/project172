@@ -17,16 +17,13 @@ spec:
     spec:
       containers:
         - name: spring-starbucks-api
-          image: insidious000/spring-starbucks-api:v3.1
+          image: jonathanBorda/spring-starbucks-api:v3.1
           env:
             - name: MYSQL_HOST
-              # Localhost
-              # value: "mysql"
-              # Cloud SQL
-              value: 10.73.0.3
+              value: 10.13.48.3
             - name: MYSQL_USER
               value: "admin"
-            - name: MYSQL_PASS
+            - name: MYSQL_PASSWORD
               value: "cmpe172"
           ports:
             - containerPort: 8080

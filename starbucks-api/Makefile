@@ -32,14 +32,14 @@ mysql-shell:
 # Docker
 
 docker-build: build
-	docker build  -t spring-starbucks-api .
+	docker build --platform=linux/amd64 -t spring-starbucks-api .
 	docker images
 
 starbucks-network:
 	docker network create --driver bridge starbucks
 
 docker-run: docker-build
-	docker run --network starbucks -e "MYSQL_HOST=mysql" --name starbucks-api -td -p 8080:8080 spring-starbucks-api
+	docker run --network starbucks -e "MYSQL_HOST=mysql" --name spring-starbucks-api -td -p 8080:8080 spring-starbucks-api
 
 docker-clean:
 	docker stop spring-starbucks-api

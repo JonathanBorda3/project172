@@ -12,6 +12,7 @@ services:
       - name: api
         paths:
           - /api
+
 consumers:
   - username: apiclient
     keyauth_credentials:

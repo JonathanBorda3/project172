@@ -37,7 +37,7 @@ final class Main {
             String ch = c.readLine() ;       // get user command
             String cmd = ch.toLowerCase() ;  // convert to lower case
             cmd = cmd.replaceAll("\\s","") ; // remove all whitespaces
-                   
+
             /* process commands */
             msg = cmd ;
             if ( cmd.startsWith("touch") ) {
@@ -48,9 +48,9 @@ final class Main {
                 System.err.println( "Value: " + values ) ;
                 String x = values[0] ;
                 String y = values[1] ;
-                msg = "touch: x="+x + " y="+y ; 
+                msg = "touch: x="+x + " y="+y ;
                 app.touch( Integer.parseInt(x), Integer.parseInt(y) ) ;
-            } else if ( cmd.equals("a") || cmd.equals("b") 
+            } else if ( cmd.equals("a") || cmd.equals("b")
                         || cmd.equals("c") || cmd.equals("d")
                         || cmd.equals("e")
                 ) {
@@ -74,7 +74,7 @@ final class Main {
                 app.touch(3,5) ;  // 3
                 app.touch(1,6) ;  // 4
             } else {
-                msg = "" ;  
+                msg = "" ;
             }
         }
     }

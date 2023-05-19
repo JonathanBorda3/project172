@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>User Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}" />
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #FFFFFF;
+            font-family: Arial, sans-serif;
+        }
+
+        .centered {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            border: 2px solid #444;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        .btn {
+            margin-top: 10px;
+            background-color: #0066cc;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #004c99;
+        }
+
+        h2, p {
+            margin: 10px 0;
+            color: #333333;
+        }
+    </style>
+
+</head>
+<body>
+<div class="centered">
+    <h2>Welcome to Admin Dashboard</h2>
+    <p class="lead">Logged as: <span sec:authentication="name"></span></p>
+    <p class="lead">Has role: <span sec:authentication="authorities"></span></p>
+    <a class="btn btn-primary" th:href="@{/starbucks}">Cashier</a>
+    <a class="btn btn-secondary" th:href="@{/logout}">Log out</a>
+</div>
+
+</body>
+</html>

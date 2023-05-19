@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>starbucks-cashier</artifactId>
+	<artifactId>spring-cashier</artifactId>
 	<version>1.0</version>
-	<name>starbucks-cashier</name>
+	<name>spring-cashier</name>
 	<description>CMPE 172 Midterm Project</description>
 	<properties>
 		<java.version>11</java.version>

@@ -25,7 +25,7 @@ mysql-shell:
 
 # Docker
 
-docker-build: build
+docker-build: jar
 	docker build --platform=linux/amd64 -t starbucks-cashier .
 	docker images
 
@@ -33,7 +33,8 @@ kong-network:
 	docker network create --driver bridge kong-network
 
 docker-run: docker-build
-	docker run --platform=linux/amd64 --network cashier -e "MYSQL_HOST=mysql" --name starbucks-cashier -td -p 9090:9090 starbucks-cashier
+	#docker run --platform=linux/amd64 --network starbucks -e "MYSQL_HOST=mysql" --name starbucks-cashier -td -p 9090:9090 starbucks-cashier
+	docker run --platform=linux/amd64 --network starbucks -e "MYSQL_HOST=104.154.89.163" --name starbucks-cashier -td -p 9090:9090 starbucks-cashier
 
 docker-clean:
 	docker stop starbucks-cashier
@@ -60,7 +61,7 @@ network-prune:
 	docker network prune
 
 compose-up:
-	docker-compose up --scale starbucks=1 -d
+	docker-compose up --scale starbucks-cashier=2 -d
 
 lb-up:
 	docker-compose up -d lb
