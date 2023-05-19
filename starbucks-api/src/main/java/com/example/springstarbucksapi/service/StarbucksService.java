@@ -22,6 +22,7 @@ public class StarbucksService {
     @Autowired private StarbucksOrderRepository ordersRepository;
     @Autowired private StarbucksCardRepository cardsRepository;
 
+
     /* https://docs.spring.io/spring-data/jpa/docs/2.4.5/api/ */
 
     /* Create a New Starbucks Card */
@@ -62,9 +63,6 @@ public class StarbucksService {
         }
     }
 
-    // https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html
-    private HashMap<String, StarbucksOrder> orders = new HashMap<>();
-
     /* https://docs.spring.io/spring-data/jpa/docs/2.4.5/api/ */
 
     /* Get List of Starbucks Orders */
@@ -75,7 +73,6 @@ public class StarbucksService {
     /* Delete All Starbucks Orders (Cleanup for Unit Testing) */
     public void deleteAllOrders() {
         ordersRepository.deleteAllInBatch();
-        orders.clear();
     }
 
     /* Create a New Starbucks Order */
@@ -86,7 +83,16 @@ public class StarbucksService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Order Request!");
         }
         // check for active order
-        StarbucksOrder active = orders.get(regid);
+        // StarbucksOrder active = activeOrders.get(regid);
+        // Check for active order
+        StarbucksOrder active = null;
+        List<StarbucksOrder> orders = ordersRepository.findAll();
+        for (StarbucksOrder ord : orders) {
+            if (ord.getRegister().equals(regid) && ord.getStatus().equals("Ready for Payment.")) {
+                active = ord;
+            }
+        }
+
         if (active != null) {
             System.out.println("Active Order (Reg ID = " + regid + ") => " + active);
             if (active.getStatus().equals("Ready for Payment."))
@@ -183,18 +189,38 @@ public class StarbucksService {
         order.setRegister(regid);
         order.setStatus("Ready for Payment.");
         StarbucksOrder new_order = ordersRepository.save(order);
-        orders.put(regid, new_order);
         return new_order;
+    }
+
+    public void updateOrderStatus(StarbucksOrder order) {
+        ordersRepository.save(order);
     }
 
     /* Get Details of a Starbucks Order */
     public StarbucksOrder getActiveOrder(String regid) {
-        return orders.get(regid);
+        List<StarbucksOrder> orders = ordersRepository.findAll();
+        for (StarbucksOrder order : orders) {
+            if (order.getRegister().equals(regid) && order.getStatus().equals("Ready for Payment.")) {
+                // Send the event to the RabbitMQ queue
+                return order;
+            }
+        }
+        return null;
     }
 
     /* Clear Active Order */
-    public void clearActiveOrder(String regid) {
-        orders.remove(regid);
+    public void clearActiveOrder(String regid) { // list of orders, and there is only 1 item on the list
+        List<StarbucksOrder> orders = ordersRepository.findAll();
+        for (StarbucksOrder order : orders) {
+            if (order.getRegister().equals(regid) && order.getStatus().equals("Ready for Payment.")) {
+                long id = order.getId();
+                // Alternative
+                // order.setStatus("Cleared");
+                ordersRepository.deleteById(id);
+
+
+            }
+        }
     }
 
     /*  Process payment for the "active" Order.
@@ -203,7 +229,14 @@ public class StarbucksService {
     @Transactional
     public StarbucksCard processOrder(String regid, String cardnum) throws ResponseStatusException {
         System.out.println("Pay for Order: Reg ID = " + regid + " Using Card = " + cardnum);
-        StarbucksOrder active = orders.get(regid);
+        // Check for active order
+        StarbucksOrder active = null;
+        List<StarbucksOrder> orders = ordersRepository.findAll();
+        for (StarbucksOrder order : orders) {
+            if (order.getRegister().equals(regid) && order.getStatus().equals("Ready for Payment.")) {
+                active = order;
+            }
+        }
         if (active == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order Not Found!");
         }
@@ -234,7 +267,6 @@ public class StarbucksService {
         ordersRepository.save(active);
         return card;
     }
-
 }
 
 /*
