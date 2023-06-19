@@ -1,219 +1,238 @@
-# CMPE 172 Project Journal
+<a name="readme-top"></a>
 
-5/8/2023
-1.installed kong in docker. I have starbucks api in docker as well and i was able to ping it in docker before deploying it to google GKE. 2. Connected to Cloud SQL. Show table
-in starbucks sql database:
 
-2.1 In my deployment.yaml i’m using my own private IP:
-containers: - name: spring-starbucks-api
-image: jonathanborda/spring-starbucks-api:v3.2
-env: - name: MYSQL_HOST # Localhost # value: "mysql" # Cloud SQL
-value: 10.13.48.3 (private Ip)
 
-3. Connected RabbitMQ using Single Pod in cloud: (lab 9)
+<!-- PROJECT LOGO -->
+<br />
+  <h3 align="center">Daily Journal on Starbucks Project</h3>
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/22685770/235343403-e84bb1f3-7153-4971-9972-9704c84ba812.jpg" alt="My Image" width="300" height="auto">
+</p>
 
-4. Deployed Starbucks API to GKE:
-   inside starbucks api fic the 10 times order bug, not ine memory
 
-5. Changed stateful session to be stateless in StarbucksServices by removing HashMap. Before the deployment i made sure my api is stateless. (does not store any data in itself, like arraylists or hashmaps), and stores all the data in the database and also in an event queue (RabbitMQ)
 
-6.created kong ingress which load balances
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
-5/11/2023
+![day 0 - cashier ui](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/31f0ae33-7615-4892-aa9c-d93115b31850)
 
-7. next to do: make sure to mark client ip and in cashier i have to do some extra work to make the backend healthy.
+<!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
-5/18/2023 (final draft of project)
+This is the comprehensive project for CMPE 172 (Enterprise Software Development) at San Jose State University, for the Spring 2023 semester. This project is a multi-tiered, end-to-end system composed of several elements:
 
-<!-- Installation Guide -->
-
-# Final Project Guide
-
-## Starbucks Project
-
-![Project Logo](https://user-images.githubusercontent.com/22685770/235343403-e84bb1f3-7153-4971-9972-9704c84ba812.jpg)
-
-This project is a comprehensive multi-tiered, end-to-end system developed for CMPE 172 (Enterprise Software Development) at San Jose State University during the Spring 2023 semester. It consists of the following components:
-
-- Cashier's app: A web-based application for overseeing customer orders.
-- Starbucks app: A mobile application for facilitating customer order payments.
-- Starbucks API: Responsible for processing requests from the Cashier's and Starbucks apps.
-- Database: Designed to maintain order and card records.
+* A web-based application enabling cashiers to oversee their customers' orders (referred to as the Cashier's app)
+* A mobile application facilitating payment for customer orders (termed as the Starbucks app)
+* A Starbucks API responsible for processing requests coming from both the Cashier's and Starbucks apps
+* A database designed to maintain records of orders and cards
 
 ## Architecture
 
-add image
+![day 0 - architecture](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/b41c61ce-3222-4d77-a54d-ff86dff93f6e)
 
-## made With
+The Cashier app and particularly the Starbucks API are designed for scalability, supported by multiple pods. They are capable of managing millions of user requests, and the load balancer assists in distributing these requests across the various pods - an external load balancer for the cashiers, and Kong's internal load balancer for all requests directed towards the Starbucks API.
 
-- Spring
-- Java
-- MySQL
-- Redis
-- HTML5
-- CSS3
-- JavaScript
-- Bootstrap
-- Postman
-- Docker
-- Google Cloud
-- RabbitMQ
+However, there is a constraint regarding the number of active orders. Only one active order per register can be processed at a given time. Consequently, any request to place a new order in the register will be denied and remain unprocessed. This limitation isn't influenced by the number of pods, as all API pods draw data exclusively from the database and don't contain static data (following the removal of the activeOrders hashmap and subsequent code update).
 
-<!-- Getting Started -->
+This system could be enhanced by incorporating RabbitMQ. For example, we could initially send order placement requests to the RabbitMQ queue, where orders would be held pending execution. Then, the API would retrieve the next order from the queue for the register and set it as active, continuing this process until the queue is empty. Regrettably, due to not just time restrictions, but also being able to dequeue from the database, I wasn't able to implement RabbitMQ. Though, I gave it a try and uploaded RabbitMQ in GKE, which works as intended. 
 
-## Getting Started
+The rest of the necessary technology stack was utilized appropriately for the project, and the accompanying journal provides further details on the project's construction.
 
-To set up the project locally, follow these steps:
+<!-- Daily Journals -->
 
-### Prerequisites
+## Day 1 
 
-- Maven Dependencies:
-  mvn package
+`date` May 2, 2023
+`topic` Kong API
 
-Postman Import:
+### Purpose
 
-- `spring-starbucks-kong-collection.json`
-- `starbucks-kong-environment.json`
+Kong is an API gateway that provides a unified entry point for all your APIs and microservices. It manages and secures APIs by providing features such as authentication, rate limiting, request/response transformations, load balancing, and more.
 
-Docker Desktop:
+### Challenges
 
-- MySQL
-- Kong API
-- Starbucks API
-- Starbucks Cashier
+* It was difficult to be able to connect to Kong API, I had to first work on figuring out the configuration. I had problems using the correct endpoints and ports for the API to connect to my application, after figuring out that, I had problems with my get and post requests. POSTMAN was useful in configuring the parameters such as the correct headers to use in the body of the requests, but with practice and online resources I was able to test my requests against the API.
 
-Mobile CLI:
+### Testing
 
-- cd project_folder
-  java -cp starbucks-app.jar -Dapiurl="http://localhost:8080" -Dapikey="2H3fONTa8ugl1IcVS7CjLPnPIS2Hp9dJ" -Dregister="5012349" starbucks.Main 2>debug.log
+![day 1 - jumpbox http](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/8c12428a-94ff-42af-ad95-d65d65cd3c7d)
+![day 1 - kong http apikey](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/0edd3d3e-3a73-42f3-b3cd-fc3386eccf46)
 
-### Installation
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-#### starbucks-api
+## Day 2
 
-1. Create a Network Bridge:
+`date` May 3, 2023
+`topic` RabbitMQ and GitHub Actions
 
-- docker network create --driver bridge starbucks
+### Purpose
 
-2. Create Kong API Docker Instance (include --platform=linux/amd64 if you are using mac):
-   docker run -d --name kong
-   --network=starbucks
-   -e "KONG_DATABASE=off"
-   -e "KONG_PROXY_ACCESS_LOG=/dev/stdout"
-   -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout"
-   -e "KONG_PROXY_ERROR_LOG=/dev/stderr"
-   -e "KONG_ADMIN_ERROR_LOG=/dev/stderr"
-   -e "KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl"
-   -p 80:8000
-   -p 443:8443
-   -p 127.0.0.1:8001:8001
-   -p 127.0.0.1:8444:8444
-   kong:2.4.0
+I wanted to use RabbitMQ because it provides a resilient messaging queue system that aids in asynchronous communication within a software system. It allows me to decouple applications, enabling them to dispatch and receive data without needing immediate processing. This improves the responsiveness and scalability of my applications, by effectively managing data flow and preventing system overload.
 
-3. Create Kong Config File:
-   docker exec -it kong kong config init /home/kong/kong.yml
-   docker exec -it kong cat /home/kong/kong.yml >> kong-initial.yml
+Also, another thing I attemted to implement, but again, failed, is to utilize GitHub Actions as it offers a powerful solution for both Continuous Integration (CI) and Continuous Deployment (CD), streamlining the process of code updates and software releases. By automatically building, testing, and deploying applications whenever there's a change to the codebase, it reduces my manual workload. This leads to more consistent and frequent deployments, expediting product development, and enhancing software quality.
 
-4. Replace the contents of:
+### Challenges
 
-yaml
-\_format_version: "1.1"
+* Implementing both RabbitMQ and GitHub Actions posed distinct challenges. With RabbitMQ, the complexity arose from integrating it into the existing system architecture and ensuring its robust performance under high loads, whereas with GitHub Actions, setting up an efficient CI/CD pipeline and troubleshooting failed builds and deployments presented significant hurdles.
 
-services:
--name: starbucks
-protocol: http
-host: starbucks-api
-port: 8080
-path: /
-plugins:
--name: key-auth  
- routes:
--name: api
-paths:
--/api
+### Testing
 
-consumers:
+![day 2 - Rabbit Error](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/076475f4-f497-4e32-98b8-feb6cf1552eb)
 
-- username: apiclient
-  keyauth_credentials:
-  - key: 2H3fONTa8ugl1IcVS7CjLPnPIS2Hp9dJ
+Therefore, I wasn't been able to accomplish these task while workin on my final project.
 
-5. Install HTTPIE:
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-choco install httpie (Windows)
-choco upgrade httpie (Windows)
+## Day 3
 
-6. Create a MySQL instance in Docker:
+`date` May 4, 2023
+`topic` Admin Functionality
 
-docker run -d --network starbucks --name mysql -td -p 3306:3306 -e MYSQL_ROOT_PASSWORD=cmpe172 mysql:8.0
+### Purpose
 
-7. Create MySQL user:
+Admin functionality serves the crucial role of defining security configurations, such as authentication and authorization rules. It ensures that appropriate access controls are in place, thereby safeguarding sensitive data and functionalities. The admin login, specifically, is an essential part of this security framework, providing a secure way for administrators to access privileged functions and manage the application effectively.
 
-# Login to MySQL
+### Challenges
 
-mysql -u root -p
+Implementing Spring Security alongside a load balancer in Google Kubernetes Engine (GKE) presented notable challenges. Configuring both to work harmoniously, while maintaining secure user sessions across multiple pods, was complex. Furthermore, ensuring that the load balancer correctly distributed traffic without compromising the security protocols established by Spring Security added to the difficulties. Additionally, managing the routing of requests accurately to ensure that they reached the appropriate services, while maintaining session continuity in a load-balanced environment, also presented a significant challenge.
 
-# Enter password:
+### Testing
 
-cmpe172
+![day 3 - admin screen](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/beb5b791-79f7-4885-84d2-95ef30109d9d)
+![day 3 - login](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/467aadd3-9d48-44e2-8af6-e2856733cdc5)
 
-# Create database
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-create database starbucks;
+## Day 4
 
-# Create user and grant privileges
+`date` May 5, 2023
+`topic` Cloud SQL
 
-create user 'admin'@'%' identified by 'cmpe172';
-grant all on starbucks.\* to 'admin'@'%';
+### Purpose
 
-8. Test HTTPIE:
+I wanted to leverage Google Cloud SQL because it provides a fully-managed relational database service for MySQL, PostgreSQL, and SQL Server. It handles the mundane tasks of database management, such as backups, patch management, and failover, allowing me to focus on developing applications. Moreover, its scalability, high availability, and security features make it an excellent choice for handling my application's data needs.
 
-http GET :8001/status
-http GET :8001/config config=@kong.yaml
-http --ignore-stdin :8001/config config=@kong.yaml
+### Challenges
 
-9. Create starbucks-api Instance:
+* Implementing Google Cloud SQL posed a few challenges, the most significant being fine-tuning the database for optimal performance while managing costs. Additionally, ensuring secure connections between the application and the database, as well as configuring the right access privileges without compromising security, were other complex aspects to navigate.
 
-docker run -d --name starbucks-api \
- --network kong-network -td -e env=dev \
- spring-starbucks-api \
- java -jar -Dspring.profiles.active=dev /srv/spring-starbucks-api-3.1.jar
+### Testing
 
-## Modifying MySQL to Google Cloud SQL
+<img width="1708" alt="day 4 - cloud sql" src="https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/e548ca53-bfc5-4c7b-848c-1742e70cc262">
 
-1. Connect to Google Cloud SQL using the following command:
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-gcloud sql connect mysql8 --user=root --quiet
+## Day 5
 
-2. Login to MySQL:
+`date` May 6, 2023
+`topic` Stateless Session
 
-mysql -u private-ip -p -h <INSTANCE_CONNECTION_NAME>:db-name
+### Purpose
 
-#### starbucks-cashier
+Before deploying the Starbucks API code, I confirmed that the API is at least stateless, meaning it doesn't retain any data internally, such as arraylists or hashmaps. Instead, it should store all data within the database and an event queue, such as RabbitMQ. As part of your tasks, you'll need to elucidate the design and implementation, relating it back to the business logic. You'll also need to discuss the capabilities and constraints of your API in conjunction with all other components.
 
-1. Create cashier instance
+### Challenges
 
-```
-docker run --platform=linux/amd64 --network starbucks -e "MYSQL_HOST=mysql" --name starbucks-cashier -td -p 9090:9090 starbucks-cashier
-```
+* Implementing stateless functionality to shift from using a hashmap to a database connection presented several challenges. The primary issue was managing the transition to a completely different data structure, which required significant code changes and retesting. Additionally, ensuring efficient and reliable database connections for every request, while maintaining high performance and scalability, was a complex task.
 
-#### Docker Desktop
+### Testing
 
-1. Install HTTPIE (everytime to test apikey)
-   apt-get update && apt-get install -y httpie
+![day 5 - stateless session](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/0d7279c3-702b-4ca6-95c7-e1ca156bc957)
 
-2. Test apikey
-   http GET localhost:8080/api/ping apikey:2H3fONTa8ugl1IcVS7CjLPnPIS2Hp9dJ
-   curl http://localhost:
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-starbucks-app
-The starbucks-app consists of several actions:
+## Day 6
 
-- Login: Use the login feature.
-- Scan: Touch the screen at coordinates (3,3) to initiate the scan.
-- Pay: Touch the screen at coordinates (2,2), then touch (3,3) to complete the payment.
-- Pay again: To pay again, touch (3,3), then touch (2,2), and finally touch (3,3) to complete the payment.
+`date` May 8, 2023
+`topic` Office Hours
 
-Before running the starbucks-cashier sub-project, make sure to run the starbucks-api sub-project. After that, follow these step:
+### Purpose
 
-- Send a card request from the starbucks-client to the starbucks-cashier.
+I needed office hours where I had to meet with the professor to ask questions, seek clarification, and receive individualized support. They provided an opportunity to deepen my understanding of the course material, discuss assignments, and receive guidance, ultimately enhancing my learning experience.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Day 7
+
+`date` May 8, 2023
+`topic` Postman Testing
+
+### Purpose
+
+I also used Postman to interact with the Kong API. By leveraging the environment variables I've set, I can seamlessly test and validate various API endpoints, ensuring their functionality and performance. Postman enables me to send requests, receive responses, and analyze the API's behavior, ultimately helping me ensure the reliability and effectiveness of my Kong API implementation.
+
+### Challenges
+ 
+Firstly, managing the environment variables can be complex, especially when dealing with different environments or configurations. Secondly, understanding the intricacies of the Kong API and its specific authentication methods requires additional research and knowledge. Lastly, accurately simulating various scenarios and handling edge cases during testing can be time-consuming and require meticulous attention to detail. Eventually, I changed current variables to meet Kong API requirements 
+
+![day 7 - 1 ping](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/4f81ec5a-7db1-403c-b3b2-8e1a5ddbe3ae)
+
+### Testing
+
+![day 7 - 2 new card](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/465395df-bf97-4be4-97ed-5702569176bf)
+![day 7 - 3 activate card](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/0c231512-84dc-4ad9-9b39-b53ed6ef7e79)
+![day 7 - 4 get cards](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/d29bfe61-0295-4832-afd9-ba4bce5fd4a7)
+![day 7 - 5 delete all cards](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/539a02cb-277c-4ef8-904b-fd65a9c49f09)
+![day 7 - 6 new order](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/1f64b203-5ccc-43d3-965b-6a5377b3ce20)
+![day 7 - 7 clear order](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/c0b72e91-a9e8-47a5-a66c-c2e286d31f92)
+![day 7 - 8 get order](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/b65b1e3b-b7c6-4374-a0c3-c4299c62dbfb)
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Day 8
+
+`date` May 10, 2023
+`topic` Deployment Testing
+
+### Purpose
+
+Scalable platform for running containerized applications offered service discovery and load balancing, which helped in managing my applications more efficiently. Moreover, its ability to scale applications based on traffic or custom metrics ensures optimal resource utilization and application performance.
+
+### Challenges
+
+Main challenges I have faced were:
+* Configuration Errors: Pulling from Docker Hub in my deployment yaml with wrong tag number
+* Networking Issues: I had to google "my ip address" and paste it in SQL networking to be able to access
+
+### Testing
+
+![day 8 - docker hub](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/3b10c81a-c46e-4c80-84d1-08b9be7061ad)
+![day 8 - network](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/bae12fb4-83ce-4c26-a0a3-6200507b544a)
+
+
+### Improvements
+
+![image](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/a60f8ad7-865f-4d74-801e-146eb0bb2728)
+![image](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/e7354089-5961-4740-9e80-61cf94cabc1f)
+![image](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/bf7e460a-8ece-45a5-8cf3-ba161bea5227)
+![image](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/7fe94df7-215e-4ebd-ac6e-12872450bdce)
+![image](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/3a5dedc9-7866-4c3f-a041-ecb17d74beeb)
+
+
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Day 9
+
+`date` May 11, 2023
+`topic` Starbucks Cashier
+
+### Purpose
+
+Cashier Web App as it serves as a user-friendly platform for cashiers to manage customer orders efficiently. It provides an intuitive interface for order input, modification, and tracking, streamlining the cashiers' workflow. Additionally, its integration with the backend system and the Starbucks API ensures seamless, real-time updates and coordination with the customer-facing Starbucks app.
+
+### Challenges
+
+* Switching the Cashier Web App from localhost to the Kong API on Google Kubernetes Engine (GKE) posed several challenges. The major hurdle was ensuring a smooth transition and maintaining seamless communication between the web app and the API in the new environment. Additionally, dealing with potential networking and security issues related to the shift to a cloud-based solution was another complex aspect of the transition. Implementing the feature to select a drink, milk, and size in the Cashier Web App also presented its own set of challenges. Designing and integrating these additional user interfaces while ensuring they correctly interact with the backend system and provide a smooth user experience was a complex task.
+
+## Day 10
+
+`date` May 13, 2023
+`topic` Final Testing
+
+### Testing
+
+![day 10 - testing](https://github.com/shohinsan/starbucks-enterprise-n-tier/assets/22685770/a9172520-3cdc-47f9-9837-5226706840f5)
+
+
