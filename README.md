@@ -10,7 +10,7 @@
 <!-- ABOUT THE PROJECT -->
 # Journal
 
-[Journal Link](https://github.com/shohinsan/starbucks-enterprise-n-tier/blob/master/JOURNAL.md)
+[Journal Link](https://github.com/JonathanBorda3/project172/blob/main/JOURNAL.md)
 
 <!-- ABOUT THE PROJECT -->
 # Installation Guide
